@@ -1,7 +1,21 @@
 #pragma once
 
+#include <iostream>
+
 #include <mfapi.h>
 #include <mfidl.h>
+
+
+template <class T> void SafeRelease(T **ppT)
+{
+	if (*ppT)
+	{
+		(*pT)->Release();
+		*ppT = NULL;
+	}
+}
+
+
 
 class CTranscoder
 {
@@ -13,5 +27,6 @@ public:
 private:
 	HRESULT Shutdown();
 	IMFMediaSession* m_pSession;
+	IMFMediaSource* m_pSource;
 
 };

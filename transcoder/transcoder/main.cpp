@@ -7,7 +7,11 @@ int wmain(int argc, wchar_t* argv[])
 {
 
 	//Implement argument check
-	//if (argc < 2)
+	if (argc < 2)
+	{
+		std::cout << "arguments not passed";
+		return 1;
+	}
 
 	const WCHAR* sInputFile = argv[1];
 
@@ -34,5 +38,7 @@ int wmain(int argc, wchar_t* argv[])
 		
 	}
 
+	MFShutdown();
+	CoUninitialize();
 }
 
