@@ -10,7 +10,7 @@ template <class T> void SafeRelease(T **ppT)
 {
 	if (*ppT)
 	{
-		(*pT)->Release();
+		(*ppT)->Release();
 		*ppT = NULL;
 	}
 }
@@ -23,10 +23,20 @@ public:
 	CTranscoder();
 	~CTranscoder();
 	HRESULT OpenFile(const WCHAR* pInputPath);
+	HRESULT CreateTranscodeTopo();
+
+	HRESULT AddSourceNode(IMFTopology *pTopology, IMFMediaSource *m_pSource, IMFPresentationDescriptor *pPD, IMFStreamDescriptor *pSD, IMFTopologyNode **ppNode);
+
+
 
 private:
 	HRESULT Shutdown();
 	IMFMediaSession* m_pSession;
 	IMFMediaSource* m_pSource;
+	IMFTopologyNode* ppNode;
 
+	IMFPresentationDescriptor *m_pPresentation;
+	IMFStreamDescriptor *m_pStreamDesc;
+
+	IMFTopology *m_pTopology;
 };

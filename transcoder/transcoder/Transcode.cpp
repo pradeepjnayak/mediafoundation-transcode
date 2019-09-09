@@ -7,7 +7,10 @@ HRESULT CreateMediaSource(
 
 CTranscoder::CTranscoder() : 
 	m_pSession(NULL),
-	m_pSource(NULL)
+	m_pSource(NULL),
+	m_pPresentation(NULL),
+	m_pStreamDesc(NULL),
+	m_pTopology(NULL)
 {
 
 
@@ -25,6 +28,10 @@ CTranscoder::~CTranscoder()
 
 	if (m_pSource) {
 		m_pSource->Release();
+	}
+	if (m_pTopology)
+	{
+		m_pTopology->Release();
 	}
 }
 
@@ -46,8 +53,91 @@ HRESULT CTranscoder::OpenFile(const WCHAR *pInputPath)
 	hr = CreateMediaSource(pInputPath, &m_pSource);
 	//m_pSource->CreatePresentationDescriptor();
 
+	if (SUCCEEDED(hr))
+	{
+		m_pSource->CreatePresentationDescriptor(&m_pPresentation);
+	}
+
+
+	DWORD cStreams = 0;
+	BOOL fSelected = false;
+
+	hr = m_pPresentation->GetStreamDescriptorCount(&cStreams);
+
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	for (DWORD iStream = 0; iStream < cStreams; iStream++)
+	{
+		hr = m_pPresentation->GetStreamDescriptorByIndex(iStream, &fSelected, &m_pStreamDesc);
+
+	}
+
+
+	
 	return hr;
 }
+
+HRESULT CTranscoder::CreateTranscodeTopo()
+{
+	//Create topology
+	HRESULT hr = S_OK;
+	hr = MFCreateTopology(&m_pTopology);
+
+	if (FAILED(hr)) {
+		goto done;
+	}
+
+
+	hr = CTranscoder::AddSourceNode(m_pTopology, m_pSource, m_pPresentation, m_pStreamDesc, &ppNode);
+
+
+done:
+	{
+		SafeRelease(&m_pTopology);
+	}
+	return hr;
+}
+
+
+HRESULT CTranscoder::AddSourceNode(IMFTopology * m_pTopology,  //Topology 
+	                               IMFMediaSource * m_pSource, //Media source.
+	                               IMFPresentationDescriptor * pPD,  //Presentation descriptor.
+	                               IMFStreamDescriptor * pSD, //Stream descriptor.
+	                               IMFTopologyNode ** ppNode)  //Receives the node pointer
+{
+	IMFTopologyNode *pNode = NULL;
+
+	HRESULT hr = S_OK;
+	hr = MFCreateTopologyNode(MF_TOPOLOGY_SOURCESTREAM_NODE, &pNode);
+
+	if (FAILED(hr)) {
+		goto done;
+	}
+
+
+	//set attributes
+	pNode->SetUnknown(MF_TOPONODE_SOURCE, m_pSource);
+
+
+	pNode->SetUnknown(MF_TOPONODE_PRESENTATION_DESCRIPTOR, pPD);
+
+	pNode->SetUnknown(MF_TOPONODE_STREAM_DESCRIPTOR, pSD);
+
+	//check weather to add mark in here?
+
+
+	hr = m_pTopology->AddNode(pNode);
+	return hr;
+done:
+	{
+		SafeRelease(&pNode);
+	}
+	
+
+}
+
 
 
 HRESULT CreateMediaSource(
@@ -80,6 +170,9 @@ HRESULT CreateMediaSource(
 		hr = pUnkSource->QueryInterface(IID_PPV_ARGS(ppMediaSource));
 	}
 
+
+
+
 	//SafeRelease(pUnkSource);
 	pUnkSource->Release();
 	pSourceResolver->Release();
@@ -87,4 +180,5 @@ HRESULT CreateMediaSource(
 
 	return hr;
 }
+
 

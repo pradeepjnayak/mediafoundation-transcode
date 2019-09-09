@@ -35,7 +35,9 @@ int wmain(int argc, wchar_t* argv[])
 	{
 		CTranscoder transcoder;
 		hr = transcoder.OpenFile(sInputFile);
-		
+
+		hr = transcoder.CreateTranscodeTopo();
+
 	}
 
 	MFShutdown();
