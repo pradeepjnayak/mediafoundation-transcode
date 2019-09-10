@@ -129,6 +129,7 @@ HRESULT CTranscoder::AddSourceNode(IMFTopology * m_pTopology,  //Topology
 
 
 	hr = m_pTopology->AddNode(pNode);
+
 	return hr;
 done:
 	{
@@ -137,6 +138,51 @@ done:
 	
 
 }
+
+HRESULT CTranscoder::AddDestNode(IMFTopology * m_pTopology, IMFStreamSink * pStreamSink, IMFTopologyNode ** ppNode)
+{
+
+	HRESULT hr = S_OK;
+
+	IMFTopologyNode* pNode = NULL;
+
+	hr = MFCreateTopologyNode(MF_TOPOLOGY_OUTPUT_NODE, &pNode);
+
+	if (SUCCEEDED(hr))
+	{
+		hr = m_pTopology->AddNode(pNode);
+	}
+
+}
+
+HRESULT CTranscoder::ConfigureVideoAttributes()
+{
+	IMFAttributes* pVideoAttributes = NULL;
+
+	HRESULT hr = S_OK;
+
+	hr = MFCreateAttributes(&pVideoAttributes, 3);
+
+	if (SUCCEEDED(hr))
+	{
+		hr = pVideoAttributes->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_WMV3);
+		hr = MFSetAttributeRatio(pVideoAttributes, MF_MT_FRAME_RATE, 30, 1);
+	}
+
+
+	if (pVideoAttributes)
+	{
+		SafeRelease(&pVideoAttributes);
+	}
+
+	
+
+}
+
+
+
+
+
 
 
 

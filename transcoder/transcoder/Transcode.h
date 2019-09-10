@@ -27,7 +27,9 @@ public:
 
 	HRESULT AddSourceNode(IMFTopology *pTopology, IMFMediaSource *m_pSource, IMFPresentationDescriptor *pPD, IMFStreamDescriptor *pSD, IMFTopologyNode **ppNode);
 
+	HRESULT AddDestNode(IMFTopology *pTopology, IMFStreamSink *pStreamSink, IMFTopologyNode **ppNode);
 
+	HRESULT ConfigureVideoAttributes();
 
 private:
 	HRESULT Shutdown();
